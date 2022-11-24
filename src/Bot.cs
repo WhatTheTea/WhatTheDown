@@ -11,9 +11,9 @@ namespace WhatTheDown
     {
         private ITelegramBotClient _botClient;
         public ITelegramBotClient BotClient => _botClient; 
-
-        public event EventHandler<(ITelegramBotClient botClient, Update update)>? OnUpdate;
-        public event EventHandler<(ITelegramBotClient botClient, Exception ex)>? OnError;
+        public delegate Task EventHandlerAsync<TArgs>(object sender, TArgs e);
+        public event EventHandlerAsync<(ITelegramBotClient botClient, Update update)>? OnUpdate;
+        public event EventHandlerAsync<(ITelegramBotClient botClient, Exception ex)>? OnError;
         public Bot(string apiKey)
         {
             _botClient = new TelegramBotClient(apiKey);

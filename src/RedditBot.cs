@@ -13,7 +13,7 @@ namespace WhatTheDown
         {
             httpClient = new();
         }
-        internal async void OnUpdate(object? sender, (ITelegramBotClient botClient, Update update) e)
+        internal async Task OnUpdate(object? sender, (ITelegramBotClient botClient, Update update) e)
         {
             var message = e.update.Message;
             var text = message?.Text;
