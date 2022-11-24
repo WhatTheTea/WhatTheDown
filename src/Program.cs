@@ -12,7 +12,7 @@ using System.Diagnostics;
 var secrets = config.Providers.First();
 secrets.TryGet("TGAPIkey", out string? botApiKey);*/
 var botApiKey = Environment.GetEnvironmentVariable("TGAPIKEY");
-_ = botApiKey ?? throw new ArgumentNullException("api key was not found :(");
+_ = botApiKey ?? throw new Exception("api key was not found :(");
 _ = Environment.GetEnvironmentVariable("PORT");
 
 var bot = new Bot(botApiKey).AddRedditDownloader();
