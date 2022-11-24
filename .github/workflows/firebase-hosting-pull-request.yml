@@ -9,14 +9,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+    - name: Create env file
+        run: |
+          touch .env
+          echo TGAPIKEY=${{ secrets.TGAPIKEY }} >> .env
+          cat .env
       - run: dotnet run
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_WHATTHEDOWN_36943 }}'
           projectId: whatthedown-36943
-      - name: Create env file
-        run: |
-          touch .env
-          echo TGAPIKEY=${{ secrets.TGAPIKEY }} >> .env
-          cat .env
