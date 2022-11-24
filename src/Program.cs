@@ -11,7 +11,7 @@ using System.Diagnostics;
 /*var config = new ConfigurationBuilder().AddUserSecrets<Program>().Build();
 var secrets = config.Providers.First();
 secrets.TryGet("TGAPIkey", out string? botApiKey);*/
-var botApiKey = Environment.GetEnvironmentVariable("api.tgkey");
+var botApiKey = Environment.GetEnvironmentVariable("TGAPIKEY");
 _ = botApiKey ?? throw new ArgumentNullException("api key was not found :(");
 _ = Environment.GetEnvironmentVariable("PORT");
 
