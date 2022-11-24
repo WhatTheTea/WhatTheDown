@@ -14,10 +14,9 @@ namespace WhatTheDown
         {
             _log = loggerFactory.CreateLogger<WhatTheDown>();
             _config = config;
-
         }
 
-        [Function("Start Bot")]
+        [Function("BotStart")]
         public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
         {
             var botApiKey = _config["TGAPIKEY"] ?? throw new Exception("api key was not found :(");
