@@ -19,12 +19,14 @@ namespace WhatTheDown
             var message = e.update.Message;
             if (message != null && message.Text != null)
             {
-
-                var downloadUrl = await GetDownloadUrl(DownloadProvider, message.Text);
-                var caption = await GetPostCaption(DownloadProvider, message.Text);
-                caption += $"\n Sent by: {message.SenderChat.FirstName} {message.SenderChat.LastName}";
-                await SendFileToChat(message.Chat, botClient, downloadUrl, caption);
-                await botClient.DeleteMessageAsync(message.Chat, message.MessageId);
+                if (message.Text.Contains("https://www.reddit.com/"))
+                {
+                    var downloadUrl = await GetDownloadUrl(DownloadProvider, message.Text);
+                    var caption = await GetPostCaption(DownloadProvider, message.Text);
+                    caption += $"\n Sent by: {message.SenderChat.FirstName} {message.SenderChat.LastName}";
+                    await SendFileToChat(message.Chat, botClient, downloadUrl, caption);
+                    await botClient.DeleteMessageAsync(message.Chat, message.MessageId);
+                }
             }
         }
 
