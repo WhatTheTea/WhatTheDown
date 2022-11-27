@@ -3,7 +3,7 @@ using Telegram.Bot.Types;
 
 namespace WhatTheDown
 {
-    public sealed class TikTokDownloader
+    /*public sealed class TikTokDownloader
     {
         private readonly HttpClient _httpClient;
 
@@ -26,5 +26,5 @@ namespace WhatTheDown
             bot.OnUpdate += downloader.OnUpdate;
             return bot;
         }
-    }
+    }*/
 }

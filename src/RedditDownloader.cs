@@ -4,58 +4,47 @@ using Telegram.Bot.Types.InputFiles;
 
 using HtmlAgilityPack;
 
+using WhatTheDown.Reddit;
+
 namespace WhatTheDown
 {
     public sealed class RedditDownloader
     {
-        static readonly string[] ImageExtensions = { ".PNG", ".JPG", ".JPEG", ".BMP", ".GIF" };
-        const string DownloadProvider = "https://redditsave.com/info?url=";
+        private readonly System.Text.RegularExpressions.Regex PostRegEx = new(@"https:\/\/www.reddit.com\/r\/(.*)\/(.*)\/");
         internal RedditDownloader()
         {
         }
         internal async Task OnUpdate(object? sender, (ITelegramBotClient botClient, Update update) e)
         {
-            var botClient = e.botClient;
-            var message = e.update.Message;
-            if (message != null && message.Text != null)
+            await DownloadFile(e.botClient, e.update);
+        }
+
+        private async Task DownloadFile(ITelegramBotClient botClient, Update update)
+        {
+            try
             {
-                if (message.Text.Contains("https://www.reddit.com/"))
+                var message = update.Message;
+                var match = PostRegEx.Match(message?.Text ?? string.Empty).Value; // find url in message
+                if (!string.IsNullOrEmpty(match))
                 {
-                    var downloadUrl = await GetDownloadUrl(DownloadProvider, message.Text);
-                    var caption = await GetPostCaption(DownloadProvider, message.Text);
-                    caption += $"\n Sent by: {message.SenderChat.FirstName} {message.SenderChat.LastName}";
-                    await SendFileToChat(message.Chat, botClient, downloadUrl, caption);
+                    Chat chat = message!.Chat;
+                    var post = new RedditPost(match);
+                    var downloadUrl = await post.GetContentUrlAsync();
+                    var caption = await post.GetCaption();
+                    var file = new InputOnlineFile(downloadUrl);
+                    if(await post.GetRedditPostTypeAsync() == RedditPostType.Image)
+                    {
+                        await botClient.SendPhotoAsync(chat, file, caption: caption);
+                    } else 
+                    {
+                        await botClient.SendVideoAsync(chat, file, caption: caption);
+                    }
                     await botClient.DeleteMessageAsync(message.Chat, message.MessageId);
                 }
             }
-        }
-
-
-        private async Task<string> GetDownloadUrl(string downloadProvider, string postUrl)
-        {
-            var url = downloadProvider + postUrl;
-            var page = await new HtmlWeb().LoadFromWebAsync(url);
-            var downloadUrl = page.DocumentNode.SelectSingleNode("/html/body/div[3]/div[2]/div[2]/div[2]/table[2]/tbody/tr/td[1]/div/a/@href").InnerText;
-            return downloadUrl;
-        }
-        private async Task<string> GetPostCaption(string downloadProvider, string postUrl)
-        {
-            var url = downloadProvider + postUrl;
-            var page = await new HtmlWeb().LoadFromWebAsync(url);
-            var caption = page.DocumentNode.SelectSingleNode("/html/body/div[3]/div[2]/div[2]/h2").InnerText;
-            return caption;
-        }
-        private async Task SendFileToChat(Chat chat, ITelegramBotClient botClient, string downloadUrl, string caption = "")
-        {
-            var file = new InputOnlineFile(downloadUrl);
-            // Check if file is an image
-            if (ImageExtensions.Contains(Path.GetExtension(downloadUrl).ToUpperInvariant()))
+            catch (Exception ex)
             {
-                await botClient.SendPhotoAsync(chat, file, caption: caption);
-            }
-            else
-            {
-                await botClient.SendVideoAsync(chat, file, caption: caption);
+                Console.WriteLine(ex.Message + " " + ex.StackTrace);
             }
         }
     }
