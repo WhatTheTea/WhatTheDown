@@ -64,7 +64,7 @@ public abstract class DownloaderBase
         }
         catch (Exception ex)
         {
-            if(ex.HResult == -2146233088) // cant delete message 
+            if(ex.Message == "Bad Request: message can't be deleted") // cant delete message 
             {
                 await botClient.SendTextMessageAsync(message.Chat, "Вибачте, сталася помилка :(\nВи назначили бота адміністратором, але не надали право видаляти повідомлення");
                 return;
