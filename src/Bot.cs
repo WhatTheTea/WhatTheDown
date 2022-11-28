@@ -9,12 +9,18 @@ namespace WhatTheDown
 {
     public class Bot
     {
+        private static Bot? _instance;
+        public static Bot Get(string apiKey) 
+        {
+            _instance = _instance ?? new(apiKey);
+            return _instance;
+        }
         private ITelegramBotClient _botClient;
         public ITelegramBotClient BotClient => _botClient; 
         public delegate Task EventHandlerAsync<TArgs>(object sender, TArgs e);
         public event EventHandlerAsync<(ITelegramBotClient botClient, Update update)>? OnUpdate;
         public event EventHandlerAsync<(ITelegramBotClient botClient, Exception ex)>? OnError;
-        public Bot(string apiKey)
+        private Bot(string apiKey)
         {
             _botClient = new TelegramBotClient(apiKey);
 
@@ -27,6 +33,7 @@ namespace WhatTheDown
                 cancellationToken
             );
         }
+
         
         private Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {

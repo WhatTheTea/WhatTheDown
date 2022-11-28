@@ -10,18 +10,21 @@ namespace WhatTheDown
     {
         private readonly ILogger _log;
         private readonly IConfiguration _config;
-        public WhatTheDown(ILoggerFactory loggerFactory, IConfiguration config)
+        private readonly IHttpClientFactory _httpClientFactory;
+        public WhatTheDown(ILoggerFactory loggerFactory, IConfiguration config, IHttpClientFactory httpClientFactory)
         {
             _log = loggerFactory.CreateLogger<WhatTheDown>();
             _config = config;
+            _httpClientFactory = httpClientFactory;
         }
 
         [Function("BotStart")]
-        public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
+        public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Function, "get", "post")] HttpRequestData req)
         {
-            var botApiKey = _config["TGAPIKEY"] ?? throw new Exception("api key was not found :(");
-
-            var bot = new Bot(botApiKey).AddRedditDownloader();
+            var botApiKey = _config["TGAPIKEY"] ?? throw new Exception("api key was not found");
+            var redditHttpClient = _httpClientFactory.CreateClient();
+            var bot = Bot.Get(botApiKey)
+                         .AddRedditDownloader(redditHttpClient);
 
             var response = req.CreateResponse(HttpStatusCode.OK);
             response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
