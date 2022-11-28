@@ -35,18 +35,17 @@ public abstract class DownloaderBase
             switch (chat.Type)
             {
                 case ChatType.Group or ChatType.Supergroup:
-                    var admins = await botClient.GetChatAdministratorsAsync(chat.Id);
                     var me = await botClient.GetMeAsync();
-                    if (admins.Any(member => member.User == me))
+                    var meMember = await botClient.GetChatMemberAsync(chat.Id, me.Id);
+                    if (meMember.Status == ChatMemberStatus.Administrator)
                     {
                         await botClient.DeleteMessageAsync(message.Chat, message.MessageId);
-                        caption += captionSentBy;
                     }
+                    caption += captionSentBy;
                     break;
 
                 case ChatType.Private or ChatType.Sender:
                     await botClient.DeleteMessageAsync(message.Chat, message.MessageId);
-                    caption += captionSentBy;
                     break;
 
                 default:
@@ -65,6 +64,11 @@ public abstract class DownloaderBase
         }
         catch (Exception ex)
         {
+            if(ex.HResult == -2146233088) // cant delete message 
+            {
+                await botClient.SendTextMessageAsync(message.Chat, "Вибачте, сталася помилка :(\nВи назначили бота адміністратором, але не надали право видаляти повідомлення");
+                return;
+            }
             Console.WriteLine(ex.Message + " " + ex.StackTrace);
             await botClient.SendTextMessageAsync(message.Chat, "Вибачте, сталася помилка :(\nСтукніть його палицею: @WhatTheTea");
         }
