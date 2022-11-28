@@ -1,9 +1,18 @@
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 
-namespace WhatTheDown.Reddit;
+namespace WhatTheDown.Posts;
 
-public class RedditPost
+public interface IPost
+{
+    string PostUrl { get; }
+
+    Task<string> GetCaption();
+    Task<string> GetContentUrlAsync();
+    Task<RedditPostType> GetRedditPostTypeAsync(string? downloadUrl = null);
+}
+
+public class RedditPost : IPost
 {
     private const string PostRegEx = "(https://www.reddit.com/r/(.*)/(.*)/)";
     private const string VideoRegEx = "(https://sd.redditsave.com/download.php?(.*))";
@@ -31,7 +40,7 @@ public class RedditPost
     {
         if (new Regex(PostRegEx).IsMatch(postUrl))
         {
-            _downloadPageUrl = @"https://www.redditsave.com/info?url="+postUrl;
+            _downloadPageUrl = @"https://www.redditsave.com/info?url=" + postUrl;
         }
         else
         {

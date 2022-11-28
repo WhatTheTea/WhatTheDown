@@ -1,4 +1,4 @@
-namespace WhatTheDown.Reddit;
+namespace WhatTheDown.Posts;
 public enum RedditPostType
     {
         Video,
