@@ -22,9 +22,12 @@ public class WhatTheDown
     public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Function, "get", "post")] HttpRequestData req)
     {
         var botApiKey = _config["TGAPIKEY"] ?? throw new Exception("api key was not found");
-        var redditHttpClient = _httpClientFactory.CreateClient();
+
+        var httpClient = _httpClientFactory.CreateClient();
+
         var bot = Bot.Get(botApiKey)
-                     .AddRedditDownloader(redditHttpClient);
+                     .AddRedditDownloader(httpClient)
+                     .AddTikTokDownloader(httpClient);
 
         var response = req.CreateResponse(HttpStatusCode.OK);
         response.Headers.Add("Content-Type", "text/plain; charset=utf-8");

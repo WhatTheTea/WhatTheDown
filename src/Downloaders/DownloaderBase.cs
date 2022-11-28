@@ -25,11 +25,10 @@ public abstract class DownloaderBase
         try
         {
             Chat chat = message!.Chat;
-            //var post = new RedditPost(match);
             var downloadUrl = await post.GetContentUrlAsync();
 
             var caption = await post.GetCaption();
-            var captionSentBy = $"\nSent by: {message!.From!.Username}";
+            var captionSentBy = $"\nSent by: @{message!.From!.Username}";
             var file = new InputOnlineFile(await _httpClient.GetStreamAsync(downloadUrl));
 
             // Delete original message
@@ -67,6 +66,7 @@ public abstract class DownloaderBase
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message + " " + ex.StackTrace);
+            await botClient.SendTextMessageAsync(message.Chat, "Вибачте, сталася помилка :(\nСтукніть його палицею: @WhatTheTea");
         }
 
     }
