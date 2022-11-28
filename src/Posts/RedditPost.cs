@@ -3,15 +3,6 @@ using HtmlAgilityPack;
 
 namespace WhatTheDown.Posts;
 
-public interface IPost
-{
-    string PostUrl { get; }
-
-    Task<string> GetCaption();
-    Task<string> GetContentUrlAsync();
-    Task<RedditPostType> GetRedditPostTypeAsync(string? downloadUrl = null);
-}
-
 public class RedditPost : IPost
 {
     private const string PostRegEx = "(https://www.reddit.com/r/(.*)/(.*)/)";
