@@ -31,7 +31,8 @@ namespace WhatTheDown
                     var post = new RedditPost(match);
                     var downloadUrl = await post.GetContentUrlAsync();
                     var caption = await post.GetCaption();
-                    var file = new InputOnlineFile(downloadUrl);
+                    var file = new InputOnlineFile(await new HttpClient().GetStreamAsync(downloadUrl));
+                    // TODO: Remove httpclient from here!
                     if(await post.GetRedditPostTypeAsync() == RedditPostType.Image)
                     {
                         await botClient.SendPhotoAsync(chat, file, caption: caption);
@@ -39,13 +40,16 @@ namespace WhatTheDown
                     {
                         await botClient.SendVideoAsync(chat, file, caption: caption);
                     }
-                    await botClient.DeleteMessageAsync(message.Chat, message.MessageId);
+                    var admins = await botClient.GetChatAdministratorsAsync(chat.Id);
+                    var me = await botClient.GetMeAsync();
+                    if(admins.Any(member => member.User == me)) await botClient.DeleteMessageAsync(message.Chat, message.MessageId);
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message + " " + ex.StackTrace);
             }
+            
         }
     }
 

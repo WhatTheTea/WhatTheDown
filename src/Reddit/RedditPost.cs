@@ -5,10 +5,10 @@ namespace WhatTheDown.Reddit;
 
 public class RedditPost
 {
-    private const string PostRegEx = @"(https:\/\/www.reddit.com\/r\/(.*)\/(.*)\/)";
-    private const string VideoRegEx = @"(https:\/\/sd.redditsave.com\/download.php?(.*))";
-    private const string ImageRegEx = @"(https:\/\/i.redd.it\/(.*))";
-    private const string GifRegEx = @"(d/\(.*))";
+    private const string PostRegEx = "(https://www.reddit.com/r/(.*)/(.*)/)";
+    private const string VideoRegEx = "(https://sd.redditsave.com/download.php?(.*))";
+    private const string ImageRegEx = "(https://i.redd.it/(.*))";
+    private const string GifRegEx = "(d/(.*))";
 
     private const string linkXPath = "/html/body/div[3]/div[2]/div[2]/div[2]/table[2]/tbody/tr/td[1]/div/a";
     private const string captionXPath = "/html/body/div[3]/div[2]/div[2]/h2";
@@ -21,17 +21,17 @@ public class RedditPost
     };
 
     private HtmlDocument? _downloadPage;
-    private readonly string _postUrl;
+    private readonly string _downloadPageUrl;
     private string? _caption;
     private string? _contentUrl;
 
-    public string PostUrl => _postUrl;
+    public string PostUrl => _downloadPageUrl;
 
-    public RedditPost(string url)
+    public RedditPost(string postUrl)
     {
-        if (new Regex(PostRegEx).IsMatch(url))
+        if (new Regex(PostRegEx).IsMatch(postUrl))
         {
-            _postUrl = url;
+            _downloadPageUrl = @"https://www.redditsave.com/info?url="+postUrl;
         }
         else
         {
@@ -43,9 +43,9 @@ public class RedditPost
     {
         if (_contentUrl == null)
         {
-            _downloadPage = _downloadPage ?? await new HtmlWeb().LoadFromWebAsync(_postUrl);
+            _downloadPage = _downloadPage ?? await new HtmlWeb().LoadFromWebAsync(_downloadPageUrl);
             var contentLink = _downloadPage.DocumentNode.SelectSingleNode(linkXPath)
-                                          .GetAttributeValue("href", string.Empty);
+                                           .GetAttributeValue("href", string.Empty);
             _contentUrl = await GetRedditPostTypeAsync(contentLink) == RedditPostType.GIF
                         ? "https://redditsave.com/" + contentLink
                         : contentLink;
@@ -67,7 +67,7 @@ public class RedditPost
     {
         if (_caption == null)
         {
-            _downloadPage = _downloadPage ?? await new HtmlWeb().LoadFromWebAsync(_postUrl);
+            _downloadPage = _downloadPage ?? await new HtmlWeb().LoadFromWebAsync(_downloadPageUrl);
             _caption = _downloadPage.DocumentNode.SelectSingleNode(captionXPath)
                                     .InnerText;
         }
