@@ -55,7 +55,7 @@ public abstract class DownloaderBase
                     break;
             }
             // Send media
-            if (await post.GetRedditPostTypeAsync() == RedditPostType.Image)
+            if (await post.GetPostTypeAsync() == PostType.Image)
             {
                 await botClient.SendPhotoAsync(chat, file, caption: caption);
             }

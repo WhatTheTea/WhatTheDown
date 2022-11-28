@@ -6,5 +6,5 @@ public interface IPost
 
     Task<string> GetCaption();
     Task<string> GetContentUrlAsync();
-    Task<RedditPostType> GetRedditPostTypeAsync(string? downloadUrl = null);
+    Task<PostType> GetPostTypeAsync(string? downloadUrl = null);
 }
